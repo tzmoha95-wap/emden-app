@@ -1,62 +1,148 @@
 <!DOCTYPE html>
 <html lang="ar">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تواصل معنا - Emden</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <header>
-      <nav class="container">
-        <a href="index.html" class="logo">Emden</a>
-        <ul class="nav-links">
-          <li><a href="about.html">من نحن</a></li>
-          <li><a href="services.html">الخدمات</a></li>
-          <li><a href="contact.html">حفظ البيانات</a></li>
-          <li><a href="contact-us.html">تواصل معنا</a></li>
-          <li><a href="exit.html">خروج</a></li>
-        </ul>
-      </nav>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>حفظ البيانات</title>
 
-    <section class="hero">
-      <div class="container">
-        <h1>تواصل معنا</h1>
-        <p>نحن هنا لمساعدتك</p>
-      </div>
-    </section>
+  <style>
+    body {
+      font-family: Arial;
+      direction: rtl;
+      padding: 20px;
+    }
 
-    <section class="contact-section">
-      <div class="container">
-        <div class="contact-info">
-          <div class="contact-item">
-            <h3>📞 الهاتف</h3>
-            <p>+212 704 973 576</p>
-          </div>
-          <div class="contact-item">
-            <h3>📧 البريد الإلكتروني</h3>
-            <p>nsde95@gmail.com</p>
-          </div>
-          <div class="contact-item">
-            <h3>🕒 ساعات العمل</h3>
-            <p>الأحد - الخميس: 9:00 - 18:00</p>
-          </div>
-          <div class="contact-item">
-            <h3>📍 الموقع</h3>
-            <p>المغرب</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    input, textarea {
+      width: 300px;
+      padding: 10px;
+      margin: 5px 0;
+      display: block;
+    }
 
-    <footer>
-      <div class="container">
-        <p>© 2026 Emden. جميع الحقوق محفوظة. | تصميم حديث ومتجاوب</p>
-      </div>
-    </footer>
-  </body>
+    button {
+      padding: 10px 20px;
+      background: blue;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #search {
+      margin-top: 20px;
+      width: 300px;
+    }
+
+    #dataList div {
+      background: #f2f2f2;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+ <!-- زر الرجوع -->
+  <a href="index.html">
+    <button type="button">🏠 رجوع للرئيسية</button>
+  </a>
+
+  <h1>حفظ البيانات</h1>
+
+  <!-- الفورم -->
+  <form id="form">
+    <input id="name" type="text" placeholder="الاسم" required />
+    <textarea id="code" placeholder="الكود" required></textarea>
+    <button type="submit">حفظ</button>
+  </form>
+
+  <!-- البحث -->
+  <input type="text" id="search" placeholder="🔍 قلب على الاسم أو الكود">
+
+  <!-- عرض البيانات -->
+  <h2>البيانات المحفوظة</h2>
+  <div id="dataList"></div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAbtJMRobtsVc9UYc7GXRk3kV3KWuEe-WM",
+      authDomain: "emden-app.firebaseapp.com",
+      projectId: "emden-app",
+      storageBucket: "emden-app.firebasestorage.app",
+      messagingSenderId: "684531562125",
+      appId: "1:684531562125:web:5ff91711236744536e94c4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const form = document.getElementById("form");
+    const dataList = document.getElementById("dataList");
+
+    let allData = [];
+
+    // حفظ البيانات
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const code = document.getElementById("code").value;
+
+      push(ref(db, "messages"), {
+        name: name,
+        code: code
+      });
+
+      form.reset();
+      alert("تم الحفظ ✅");
+    });
+
+    // جلب البيانات
+    onValue(ref(db, "messages"), (snapshot) => {
+      allData = [];
+
+      snapshot.forEach((child) => {
+        allData.push(child.val());
+      });
+
+      displayData(allData);
+    });
+
+    // عرض البيانات
+    function displayData(dataArray) {
+      dataList.innerHTML = "";
+
+      dataArray.forEach((data) => {
+        const div = document.createElement("div");
+
+        div.innerHTML = `
+          <p><b>الاسم:</b> ${data.name}</p>
+          <p><b>الكود:</b></p>
+          <pre>${data.code}</pre>
+        `;
+
+        dataList.appendChild(div);
+      });
+    }
+
+    // البحث
+    document.getElementById("search").addEventListener("input", (e) => {
+      const value = e.target.value.toLowerCase();
+
+      const filtered = allData.filter(item =>
+        item.name.toLowerCase().includes(value) ||
+        item.code.toLowerCase().includes(value)
+      );
+
+      displayData(filtered);
+    });
+
+  </script>
+
+</body>
 </html>
