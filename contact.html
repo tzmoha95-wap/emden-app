@@ -64,16 +64,18 @@
   <h2>البيانات المحفوظة</h2>
   <div id="dataList"></div>
 
-  <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
   const firebaseConfig = {
-    apiKey: "AIzaSy...",
+    apiKey: "AIzaSyAbtJMRobtsVc9UYc7GXRk3kV3KWuEe-WM",
     authDomain: "emden-app.firebaseapp.com",
-    databaseURL: "https://emden-app-default-rtdb.firebaseio.com/",
+    databaseURL: "https://emden-app-default-rtdb.firebaseio.com",
     projectId: "emden-app",
+    storageBucket: "emden-app.firebasestorage.app",
+    messagingSenderId: "684531562125",
+    appId: "1:684531562125:web:5ff91711236744536e94c4"
   };
 
   firebase.initializeApp(firebaseConfig);
@@ -85,7 +87,8 @@
 
   let allData = [];
 
-  form.addEventListener("submit", (e) => {
+  // save
+  form.addEventListener("submit", function(e) {
     e.preventDefault();
 
     const name = document.getElementById("name").value;
@@ -97,13 +100,13 @@
     });
 
     form.reset();
-    alert("تم الحفظ ✅");
   });
 
-  db.ref("messages").on("value", (snapshot) => {
+  // read
+  db.ref("messages").on("value", function(snapshot) {
     allData = [];
 
-    snapshot.forEach((child) => {
+    snapshot.forEach(function(child) {
       allData.push(child.val());
     });
 
@@ -113,7 +116,7 @@
   function displayData(dataArray) {
     dataList.innerHTML = "";
 
-    dataArray.forEach((data) => {
+    dataArray.forEach(function(data) {
       const div = document.createElement("div");
 
       div.innerHTML = `
@@ -124,6 +127,18 @@
       dataList.appendChild(div);
     });
   }
+
+  // search
+  document.getElementById("search").addEventListener("input", function(e) {
+    const value = e.target.value.toLowerCase();
+
+    const filtered = allData.filter(item =>
+      item.name.toLowerCase().includes(value) ||
+      item.code.toLowerCase().includes(value)
+    );
+
+    displayData(filtered);
+  });
 </script>
 
 </body>
